@@ -1,38 +1,16 @@
-import pickle
+import os
 import random
 from glob import glob
 
 import cv2
-import imutils
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 
-dataset_path = "..\\data\\choi_accidentals_dataset"
-target_img_size = (100, 100)
-sample_count = 50
 
-
-def extract_raw_pixels(img):
-    resized = cv2.resize(img, target_img_size)
-    return resized.flatten()
-
-
-def extract_hsv_histogram(img):
-    resized = cv2.resize(img, target_img_size)
-    hsv = cv2.cvtColor(resized, cv2.COLOR_BGR2HSV)
-    hist = cv2.calcHist([hsv], [0, 1, 2], None, [8, 8, 8], [0, 180, 0, 256, 0, 256])
-    if imutils.is_cv2():
-        hist = cv2.normalize(hist)
-    else:
-        cv2.normalize(hist, hist)
-    return hist.flatten()
-
-
-def extract_hog_features(img):
+def extract_hog_features(img, target_img_size=(100, 100)):
     img = cv2.resize(img, target_img_size)
     win_size = (100, 100)
     cell_size = (4, 4)
@@ -50,41 +28,35 @@ def extract_hog_features(img):
     return h.flatten()
 
 
-def extract_features(img, feature_set="raw"):
-    if feature_set == "hog":
-        return extract_hog_features(img)
-    elif feature_set == "raw":
-        return extract_raw_pixels(img)
-    else:
-        return extract_hsv_histogram(img)
-
-
-def extract_labels(dir_name):
-    label = dir_name.split("_")[1]  # Assuming the label is the second part
-    return label
-
-
-def load_dataset(feature_set="raw", dir_names=[]):
-    features = []
+def read_data(data_path):
+    # Initialize lists to hold image paths and their corresponding labels
+    imgs = []
     labels = []
-    count = 0
-    for dir_name in dir_names:
-        print(dir_name)
-        # imgs = glob(f"{dataset_path}/{dir_name}/*.png")
-        imgs = glob(f"{dataset_path}\\{dir_name}\\*.jpg")
-        count += len(imgs)
-        subset = random.sample(
-            [i for i in range(len(imgs))], min(len(imgs), sample_count)
-        )
-        for i in subset:
-            img = cv2.imread(imgs[i])
-            img_name = imgs[i].split("\\")[-1]
-            label = extract_labels(img_name)
-            # labels.append(dir_name)
-            labels.append(label)
-            features.append(extract_features(img, feature_set))
-    print(f"Total: {len(dir_names)} directories, and {count} images")
-    return features, labels
+
+    # Iterate through each subdirectory in the base directory
+    for subdir in os.listdir(data_path):
+        subdir_path = os.path.join(data_path, subdir)
+        # Check if the path is a directory
+        if os.path.isdir(subdir_path):
+            # Extract the label from the subdirectory name (xxx)
+            label = "_".join(subdir.split("_")[:-1])
+            # Get all PNG images in the subdirectory
+            image_files = glob(os.path.join(subdir_path, "*.png"))
+
+            # Append image paths and labels to the lists
+            for image_file in image_files:
+                img = cv2.imread(image_file)
+                if img is not None:
+                    imgs.append(img)
+                    labels.append(label)
+                else:
+                    print(f"Warning: Could not read image {image_file}")
+
+    if not imgs:
+        raise ValueError(f"No valid images found in directory {data_path}")
+
+    print(f"Total images loaded: {len(imgs)}")
+    return imgs, labels
 
 
 def load_classifiers():
@@ -111,34 +83,26 @@ def load_classifiers():
     return classifiers, random_seed
 
 
-def run_experiment(classifier="SVM", feature_set="hog", dir_names=[]):
-    print("Loading dataset. This will take time ...")
-    features, labels = load_dataset(feature_set, dir_names)
-    print("Finished loading dataset.")
+def train_model(labels, imgs, classifier):
+    features = []
+    for img in imgs:
+        features.append(extract_hog_features(img))
 
     classifiers, random_seed = load_classifiers()
-
     train_features, test_features, train_labels, test_labels = train_test_split(
         features, labels, test_size=0.2, random_state=random_seed
     )
-
     model = classifiers[classifier]
     print("############## Training", classifier, "##############")
     model.fit(train_features, train_labels)
     accuracy = model.score(test_features, test_labels)
     print(classifier, "accuracy:", accuracy * 100, "%")
 
-    return model, accuracy
 
-
-def train(model_name, feature_name, saved_model_name):
-    # dir_names = [path.split("/")[2] for path in glob(f"{dataset_path}/*")]
-    dir_names = [path.split("\\")[-1] for path in glob(f"{dataset_path}/*")]
-    model, accuracy = run_experiment(model_name, feature_name, dir_names)
-
-    filename = f"trained_models/{saved_model_name}.sav"
-    pickle.dump(model, open(filename, "wb"))
+def main():
+    imgs, labels = read_data("./data_")
+    train_model(labels, imgs, "NN")
 
 
 if __name__ == "__main__":
-    train("NN", "hog", "nn_trained_model_hog")
+    main()
