@@ -8,6 +8,18 @@ from extract_symbol.staff import coordinator
 
 
 def get_connected_components(img_without_staff, img_with_staff):
+    """
+    Extract connected components from the binary image without staff lines.
+
+    Parameters:
+    - img_without_staff: Binary image with staff lines removed.
+    - img_with_staff: Original image with staff lines.
+
+    Returns:
+    - components: List of extracted components.
+    - comp_with_staff: List of corresponding components from the original image.
+    - boundary: Bounding boxes of the components.
+    """
     components = []
     boundary = []
     bw = 1 - img_without_staff
@@ -27,11 +39,18 @@ def get_connected_components(img_without_staff, img_with_staff):
 
 
 def split_symbol(imgs_with_staff, imgs_without_staff, segmenter, horizontal):
-    # img = rgb2gray(img)
-    # horizontal = IsHorizontal(img)
+    """
+    Split symbols from images with and without staff lines.
 
-    # imgs_with_staff, imgs_without_staff, segmenter = remove(img)
+    Parameters:
+    - imgs_with_staff: List of images with staff lines.
+    - imgs_without_staff: List of images without staff lines.
+    - segmenter: Segmenter object for processing.
+    - horizontal: Boolean indicating if the image is horizontal.
 
+    Returns:
+    - saved_images: List of images containing split symbols.
+    """
     imgs_spacing = []
     imgs_rows = []
     coord_imgs = []

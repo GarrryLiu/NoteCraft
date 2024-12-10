@@ -7,6 +7,15 @@ from skimage.filters import gaussian, threshold_otsu
 
 
 def read_data(data_path):
+    """
+    Read images from the specified path using glob.
+
+    Parameters:
+    - data_path: Path to the images.
+
+    Returns:
+    - imgs: List of loaded images.
+    """
     imgs = []
     input_files = glob(data_path)  # input path
     for input_file in input_files:
@@ -20,6 +29,16 @@ def read_data(data_path):
 
 
 def histogram(img, thresh):
+    """
+    Compute the histogram of an image and apply a threshold.
+
+    Parameters:
+    - img: Input image.
+    - thresh: Threshold value.
+
+    Returns:
+    - hist: Processed histogram.
+    """
     hist = (np.ones(img.shape) - img).sum(dtype=np.int32, axis=1)
     _max = np.amax(hist)
     hist[hist[:] < _max * thresh] = 0
@@ -27,6 +46,15 @@ def histogram(img, thresh):
 
 
 def get_line_indices(hist):
+    """
+    Get indices of lines from the histogram.
+
+    Parameters:
+    - hist: Histogram of the image.
+
+    Returns:
+    - indices: List of indices where lines are detected.
+    """
     indices = []
     prev = 0
     for index, val in enumerate(hist):
@@ -38,9 +66,13 @@ def get_line_indices(hist):
 
 def otsu(img):
     """
-    Otsu with gaussian
-    img: gray image
-    return: binary image, pixel values 0:1
+    Apply Otsu's method with Gaussian filtering to binarize an image.
+
+    Parameters:
+    - img: Grayscale image.
+
+    Returns:
+    - Binary image after applying Otsu's thresholding.
     """
     blur = gaussian(img)
     otsu_bin = 255 * (blur > threshold_otsu(blur))
@@ -48,4 +80,14 @@ def otsu(img):
 
 
 def get_thresholded(img, thresh):
+    """
+    Threshold an image based on a specified threshold.
+
+    Parameters:
+    - img: Input image.
+    - thresh: Threshold value.
+
+    Returns:
+    - Binary image after thresholding.
+    """
     return 1 * (img > thresh)

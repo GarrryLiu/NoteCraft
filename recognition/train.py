@@ -11,6 +11,16 @@ from sklearn.neural_network import MLPClassifier
 
 
 def extract_hog_features(img, target_img_size=(100, 100)):
+    """
+    Extract HOG features from an image for classification.
+
+    Parameters:
+    - img: Input image.
+    - target_img_size: Size to which the image will be resized.
+
+    Returns:
+    - h: Flattened HOG feature vector.
+    """
     img = cv2.resize(img, target_img_size)
     win_size = (100, 100)
     cell_size = (4, 4)
@@ -29,7 +39,16 @@ def extract_hog_features(img, target_img_size=(100, 100)):
 
 
 def read_data(data_path):
-    # Initialize lists to hold image paths and their corresponding labels
+    """
+    Read images and their corresponding labels from the specified directory.
+
+    Parameters:
+    - data_path: Path to the directory containing images.
+
+    Returns:
+    - imgs: List of loaded images.
+    - labels: List of corresponding labels.
+    """
     imgs = []
     labels = []
 
@@ -100,7 +119,7 @@ def train_model(labels, imgs, classifier):
 
 
 def main():
-    imgs, labels = read_data("./data_")
+    imgs, labels = read_data("../data/singleNote")
     train_model(labels, imgs, "NN")
 
 

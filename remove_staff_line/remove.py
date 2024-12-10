@@ -4,8 +4,18 @@ from skimage.filters import threshold_otsu
 from remove_staff_line.segmenter import Segmenter
 
 
-# img should be gray
 def remove(img):
+    """
+    Remove staff lines from a grayscale image.
+
+    Parameters:
+    - img: Grayscale input image.
+
+    Returns:
+    - imgs_with_staff: List of images with staff lines.
+    - imgs_without_staff: List of images without staff lines.
+    - segmenter: Segmenter object for further processing.
+    """
     _, binary_img = cv2.threshold(img, threshold_otsu(img), 1, cv2.THRESH_BINARY)
     segmenter = Segmenter(binary_img)
     imgs_with_staff = segmenter.regions_with_staff
