@@ -5,6 +5,8 @@ from skimage.measure import label, regionprops
 from skimage.morphology import binary_opening, square
 
 from extract_symbol.staff import coordinator
+from remove_staff_line.remove import remove
+from utils.pre_processing import IsHorizontal
 
 
 def get_connected_components(img_without_staff, img_with_staff):
@@ -72,6 +74,28 @@ def split_symbol(imgs_with_staff, imgs_without_staff, segmenter, horizontal):
         saved_images.append(row_images)
 
     return saved_images
+
+
+def extract_symbol(img):
+    gray_img = rgb2gray(img)
+
+    # Remove staff lines and get processed images
+    imgs_with_staff, imgs_without_staff, segmenter = remove(gray_img)
+
+    # Prepare the first image for horizontal check
+    img = (imgs_with_staff[0] * 255).astype(np.uint8)
+
+    # Check if the image is horizontal
+    horizontal = IsHorizontal(img)
+
+    # Split the symbols from the processed images
+    saved_imgs = split_symbol(
+        imgs_with_staff, imgs_without_staff, segmenter, horizontal
+    )
+    # Return value is a 2D list:
+    # - Each row corresponds to a row in the sheet music.
+    # - Each column corresponds to the ith symbol in that row.
+    return saved_imgs
 
 
 # if __name__ == "__main__":

@@ -3,6 +3,7 @@ import random
 from glob import glob
 
 import cv2
+import joblib
 import numpy as np
 from sklearn import svm
 from sklearn.model_selection import train_test_split
@@ -59,6 +60,7 @@ def read_data(data_path):
         if os.path.isdir(subdir_path):
             # Extract the label from the subdirectory name (xxx)
             label = "_".join(subdir.split("_")[:-1])
+            # print(label)
             # Get all PNG images in the subdirectory
             image_files = glob(os.path.join(subdir_path, "*.png"))
 
@@ -103,6 +105,7 @@ def load_classifiers():
 
 
 def train_model(labels, imgs, classifier):
+
     features = []
     for img in imgs:
         features.append(extract_hog_features(img))
@@ -114,13 +117,23 @@ def train_model(labels, imgs, classifier):
     model = classifiers[classifier]
     print("############## Training", classifier, "##############")
     model.fit(train_features, train_labels)
+
+    joblib.dump(model, f"{classifier}_model.pkl")
+
     accuracy = model.score(test_features, test_labels)
     print(classifier, "accuracy:", accuracy * 100, "%")
 
 
+def load_model(classifier):
+    return joblib.load(f"{classifier}_model.pkl")
+
+
 def main():
-    imgs, labels = read_data("../data/singleNote")
+    imgs, labels = read_data("../data/data_")
     train_model(labels, imgs, "NN")
+
+    # model = load_model("NN")
+    # You can now use `model` to make predictions on new data
 
 
 if __name__ == "__main__":
