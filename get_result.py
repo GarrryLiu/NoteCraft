@@ -4,17 +4,17 @@ from extract_symbol.extract_symbol import extract_symbol
 from recognition.predict import load_model, predict
 
 # Read the image from the specified path
-image_path = "./data/package_aa/000100134-10_1_1.png"  # Replace with your image path
+image_path = "./data/package_aa/000100126-10_1_1.png"  # Replace with your image path
 img = cv2.imread(image_path)
 
 # Split the image into parts
 split_symbols = extract_symbol(img)
 
 def get_actl_prediction(prediction):
-    identifiers = ['4', '8', '16', '32', '#', 'bar', 'clef', 'flat', 'natural', 'chord', 'dot', 'p']
+    identifiers = ['#', 'bar', 'clef', 'flat', 'natural', 'chord', 'dot', 't', 'p', '4', '8', '16', '32',]
     for i in identifiers:
         if i in prediction:
-            return i
+            return i if not i == 't' else str(prediction)
 
 def get_note_types(split_symbols):
     predict_result = []
