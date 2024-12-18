@@ -35,7 +35,8 @@ def create_midi(note_types, pitches, output_file="output.mid", tempo=500000):
     tick_duration = 480  # Quarter note duration in ticks
     current_time_signature = (3, 4)  # Default time signature
 
-    for note_type, pitch in zip(note_types, pitches):
+    note_idx = 0
+    for note_type in note_types:
         if note_type == 'clef':
             continue  # Skip clef
         elif note_type == 'bar':
@@ -48,7 +49,8 @@ def create_midi(note_types, pitches, output_file="output.mid", tempo=500000):
         elif note_type == '#':  # Sharp symbol (skip for now, as pitch already includes sharp notes)
             continue
         elif note_type.isdigit():  # Quarter note (or other note duration)
-            midi_note = pitch_to_midi(pitch)
+            midi_note = pitch_to_midi(pitches[note_idx])
+            note_idx += 1
             if midi_note is not None:
                 # Add note-on and note-off events
                 track.append(Message('note_on', note=midi_note, velocity=64, time=0))
