@@ -2,78 +2,52 @@
 
 ---
 
-## **Overview**
-This project is a Python-based tool for analyzing music sheets. It detects staff lines, notes, and their pitches using image processing and computer vision techniques. The tool processes input music sheet images and outputs annotated results with identified notes and their corresponding pitches.
-
----
-
-## **Features**
-- **Staff Line Detection**: Detects and visualizes staff lines in the music sheet.
-- **Blob Detection**: Identifies note heads (blobs) on the sheet and maps them to the respective staff lines.
+## **Functions**
+- **Crop Staves**: Crop an input sheet music image into a set of individual lines of staves.
+- **Note Recognition**: Identifies types of notes and signatures present in the line.
 - **Pitch Recognition**: Classifies each detected note as a pitch (e.g., C4, G3) based on its position and clef.
-- **Clef Detection**: Distinguishes between violin and bass clefs using Hu moments.
-- **Visual Outputs**: Saves intermediate and final results, including processed images and text annotations.
+- **Midi Translation**: Translates the extracted note, signature, and pitch information into MIDI format.
 
 ---
 
-## **File Structure**
-### **1. `main.py`**
-- The entry point of the project. It processes the input image, coordinates staff detection, blob detection, note extraction, and pitch annotation.
+## **Code Packages**
+### **1. `crop_staves`**
+- Code for cropping staves into individual lines of music for downstream recognition and classification.
 
-### **2. `config.py`**
-- Contains configuration parameters like thresholds, kernel sizes, and flags for verbose output and saving intermediate results.
+### **2. `remove_staff_line`**
+- Code for removing staff lines.
 
-### **3. `getting_lines.py`**
-- Implements staff line detection:
-  - Preprocessing the input image.
-  - Detecting lines using the Hough Transform.
-  - Grouping lines into staff structures.
+### **3. `pitch_classification`**
+- Code for determining the pitch of notes.
 
-### **4. `blob_detector.py`**
-- Detects blobs (note heads) using `cv2.SimpleBlobDetector` and assigns them to staff lines.
-
-### **5. `hu.py`**
-- Implements clef detection:
-  - Extracts clef regions from staff lines.
-  - Classifies clefs as violin or bass using Hu moments.
-
-### **6. `note.py`**
-- Defines the `Note` class, which:
-  - Calculates a note's position relative to staff lines.
-  - Determines its pitch based on clef and position.
-  - Contains methods to extract and annotate notes in the image.
-
-### **7. `staff.py`**
-- Defines the `Staff` class, representing a staff structure:
-  - Calculates line locations and spacing for a given staff.
-
-### **8. `util.py`**
-- Contains utility functions, such as calculating distances between points.
-
-### **9. `requirements.txt`**
-- Lists all required dependencies for the project:
-  - `opencv-python`
-  - `numpy`
-  - `argparse`
-
+### **4. `extract_symbol` and `recognition`**
+- Code for note and signature classification.
 ---
 
-## **How to Use**
-### **1. Install Dependencies**
+## **Installing Dependencies**
 Install the required packages using the following command:
 ```bash
 pip install -r requirements.txt
 ```
 
-### **2. Run the Tool**
+## **Note and Signature Recognition**
+
+Execute `get_results.py` after modifying the `image_path` in place in the code.
+```bash
+python get_results.py
+```
+
+## **Pitch Recognition**
+
+### **1. Run the Tool**
 Execute the main script with an input image:
 ```bash
-python main.py -i <path_to_image>
+python pitch_classification/main.py -i <path_to_image>
 ```
 Replace `<path_to_image>` with the path to your input music sheet image (e.g., `data/sample.png`).
 
-### **3. View Results**
-The outputs will be saved in the `output/` directory:
+### **2. View Results**
+The outputs will be saved in the `pitch_classification/output/` directory:
 - **Intermediate Results**:
   - Processed images with lines or blobs removed.
   - Images with detected blobs and annotated staff numbers.
@@ -83,7 +57,7 @@ The outputs will be saved in the `output/` directory:
 
 ---
 
-## **Key Parameters**
+### **Key Parameters**
 - **`config.py`**:
   - `VERBOSE`: Enables detailed logging.
   - `SAVING_IMAGES_STEPS`: Saves intermediate image processing results.
@@ -92,9 +66,12 @@ The outputs will be saved in the `output/` directory:
 
 ---
 
-## **File Outputs**
+### **File Outputs**
 - **Annotated Images**:
   - `output/`: Includes images for horizontal/vertical lines removed, detected blobs, and annotated notes with pitches.
 - **Text File**:
   - `output/notes_pitch.txt`: Lists all detected notes and their pitches.
 
+## **Info2MIDI Translation**
+
+Execute `info2midi.py` for an example of translation. Format the information in the format of the example, and call `create_midi` to execute the code on a custom file.
